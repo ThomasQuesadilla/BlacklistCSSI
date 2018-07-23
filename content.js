@@ -12,7 +12,7 @@ for (var i = 0; i < elements.length; i++) {
         if (node.nodeType === 3) {
             var text = node.nodeValue;
 
-            if (text.match(/marissa/gi)) {
+            if (text.match(/marissa/gi) || (text.match(/trump/gi))) {
               var replace = '<span style="background-color: black; color: black;">';
               for (var i = 0; i < text.length; i++) {
                 replace += 'X';
