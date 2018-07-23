@@ -3,13 +3,10 @@ api_version: 1
 threadsafe: yes
 
 handlers:
-- url: /
-  static_files: main.html
-  upload: main\.html
-  
-- url: /
-  static_files: login.html
-  upload: login\.html
-  
+
 - url: /.*
   script: blocking.app
+  
+libraries:
+- name: jinja2
+  version: latest
