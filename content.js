@@ -11,7 +11,6 @@ for (var i = 0; i < elements.length; i++) {
 
         if (node.nodeType === 3) {
             var text = node.nodeValue;
-            //var replacedText = text.replace(/marissa/gi, 'ppp');
 
             if (text.match(/marissa/gi)) {
               var replace = '<span style="background-color: black; color: black;">';
@@ -19,15 +18,13 @@ for (var i = 0; i < elements.length; i++) {
                 replace += 'X';
               }
               replace +='</span>';
-              //var newNode = document.createTextNode(replace);
+              
               var newNode = document.createElement('span');
               newNode.innerHTML = replace;
-              //newNode.style.color = 'black';
-              //newNode.style.backgroundColor = 'black';
+              
               element.replaceChild(newNode, element.childNodes[j]);
 
-                //element.childNodes[j].innerHTML = replacedText;
-                //element.replaceChild(document.createTextNode(replacedText), node);
+                
             }
         }
     }
