@@ -77,7 +77,7 @@ function loadModels() {
         text += 'There are no models.';
       }
       text += '<br>';
-      text += '<button onclick="showCreateModel();">Create New Model</button>';
+      text += '<button onclick="showCreateModel();">Create New Blacklist</button>';
       
       // set the HTML we created in "text" to the maincontent DIV tag.
       document.getElementById('maincontent').innerHTML = text;
@@ -87,10 +87,13 @@ function showCreateModel() {
   // this function just builds the HTML for a simple form for adding a new model.
   clearError();
   let text = '';
-  text += 'Title:<br><input id="modeltitle"><br><br>';
-  text += 'Words:<br><textarea id="modeltext"></wordsarea>';
-  text += '<br><br><button onclick="loadModels();">Cancel</button> ';
-  text += '<button onclick="saveModel();">Save</button>';
+  text += 'Blacklist Title:<br>';
+  text += '<input id="modeltitle"><br><br>';
+  text += 'Words:<br>';
+  text += '<i>(Enter key words that you wish to blacklist below.)</i><br>'
+  text += '<textarea id="modelwords"></textarea>';
+  text += '<br><br><button onclick="saveModel();">Create Blacklist</button>';
+  text += '&nbsp<button onclick="loadModels();">Cancel</button> ';
   document.getElementById('maincontent').innerHTML = text;
 }
 function saveModel() {
@@ -157,19 +160,20 @@ sendData('/user', function(result) {
         font-weight: bold;
       }
       #maincontent {
-        border: 10px solid lightgreen;
+        border: 5px solid black;
         padding: 20px;
+        background-color: lightblue;
       }
       a {
         font-weight: bold;
-        color: blue;
+        color: white;
         text-decoration: none;
       }
       a:hover {
         text-decoration: underline;
       }
       body {
-        font-family: Verdana;
+        font-family: Courier;
       }
     </style>
   </head>
@@ -178,3 +182,8 @@ sendData('/user', function(result) {
     <div id="maincontent"></div>
   </body>
 </html>
+      
+      
+  	
+  	
+    

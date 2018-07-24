@@ -1,12 +1,14 @@
-import webapp2
 import json
+import webapp2
 from google.appengine.ext import ndb
-from google.appengine.api import usersq
+from google.appengine.api import users
 
+
+# This is a simple model that we can use to demo storage & retrieval.
 class TestModel(ndb.Model):
   title = ndb.StringProperty()
   words = ndb.TextProperty()
-  creator = ndb.StringProperty()
+  author = ndb.StringProperty()
   
   # we'll create a simple summary dictionary method here
   def to_summary_dict(self):
@@ -14,7 +16,7 @@ class TestModel(ndb.Model):
       # "key" is a property we get from ndb.Model - we can use this for easy retrieval of 1 specfic Model
       'key': self.key.urlsafe(),
       'title': self.title,
-      'creator': self.creator
+      'author': self.author
     }
     
   # this to_dict method will send *all* of the data for this object
@@ -78,13 +80,13 @@ class ListModelsHandler(webapp2.RequestHandler):
 class AddModelHandler(webapp2.RequestHandler):
   def dispatch(self):
     if get_user_email():
-      rtext = self.request.get('text')
+      rtext = self.request.get('words')
       rtitle = self.request.get('title')
       if len(rtitle) > 500:
         send_error(self, 'Title should be less than 500 characters.')
       
       elif rtitle.strip():
-        m = TestModel(title=rtitle, words=rtext, creator=get_user_email())
+        m = TestModel(title=rtitle, words=rtext, author=get_user_email())
         m.put()
         send_json(self, {'ok': True})
         
@@ -120,3 +122,16 @@ app = webapp2.WSGIApplication([
   ('/add', AddModelHandler),
   ('/model', ModelDetailHandler),
 ])
+
+
+
+
+
+
+
+
+    
+
+
+     
+    
