@@ -1,36 +1,122 @@
-#This is the pending source code for our final project.
 import webapp2
+import json
+from google.appengine.ext import ndb
+from google.appengine.api import usersq
 
-from google.appengine.api import users
-from google.appengine.api import memcache
+class TestModel(ndb.Model):
+  title = ndb.StringProperty()
+  words = ndb.TextProperty()
+  creator = ndb.StringProperty()
+  
+  # we'll create a simple summary dictionary method here
+  def to_summary_dict(self):
+    return {
+      # "key" is a property we get from ndb.Model - we can use this for easy retrieval of 1 specfic Model
+      'key': self.key.urlsafe(),
+      'title': self.title,
+      'creator': self.creator
+    }
+    
+  # this to_dict method will send *all* of the data for this object
+  def to_dict(self):
+    result = self.to_summary_dict()
+    result['words'] = self.words
+    return result
 
-class MainPage(webapp2.RequestHandler):
-    def get(self):
-        user = users.get_current_user()
-        nickname = None
-        logout = None
-        if user:
-            nickname = user.nickname()
-            logout = users.create_logout_url('/')
-            greeting = 'Welcome, {}! (<a href="{}">sign out</a>)'.format(
-                nickname, logout_url)
-        else:
-            self.redirect(users.create_login_url())
-            
+
+# convenience function for retrieving a user, or None if the user isn't logged in
+def get_user_email():
+  user = users.get_current_user()
+  if user:
+    return user.email()
+  else:
+    return None
+    
+
+# convenience function for sending JSON data to browser
+def send_json(request_handler, params):
+  # params should be a dictionary - we'll just write it out as a JSON object
+  request_handler.response.out.write(json.dumps(params))
+  
+  
+# convenience funtion for sending JSON error msg to browser
+def send_error(request_handler, msg):
+  # we will create a dictionary, and just convert that to a JSON response
+  request_handler.response.out.write(json.dumps({'error': msg}))
+  
+
+# Handler for displaying user email JSON - URLs for login and logout
+class UserHandler(webapp2.RequestHandler):
+  def dispatch(self):
+    result = {
+      'login': users.create_login_url('/'),
+      'logout': users.create_logout_url('/'),
+      'user': get_user_email(),
+    }
+    send_json(self, result)
+    
+
+# this handler just lists our models in JSON
+class ListModelsHandler(webapp2.RequestHandler):
+  def dispatch(self):
+    if get_user_email():
+      # if we get this far, we know we have a valid user
+      result = {}
+      result['models'] = []
       
-            
-class LoginHandler(webapp2.RequestHandler):
-    def get(self):
-        error = self.request.get('error')
-        self.response.write(content.render(error=error))
+      # retrieve all of the models we have:
+      for model in TestModel.query().fetch():
+        result['models'].append(model.to_summary_dict())
         
-    def post(self):
-        username = self.request.get('username')
-        password = self.request.get('password')
+      send_json(self, result)
+
+    else:
+      send_error(self, 'Please log in.')
+      
+      
+# retrieve the parameters from the request, build a model, and store it
+class AddModelHandler(webapp2.RequestHandler):
+  def dispatch(self):
+    if get_user_email():
+      rtext = self.request.get('text')
+      rtitle = self.request.get('title')
+      if len(rtitle) > 500:
+        send_error(self, 'Title should be less than 500 characters.')
+      
+      elif rtitle.strip():
+        m = TestModel(title=rtitle, words=rtext, creator=get_user_email())
+        m.put()
+        send_json(self, {'ok': True})
         
+      else:
+        send_error(self, 'Title should not be blank.')
+
+    else:
+      send_error(self, 'Please log in.')
+      
+
+# retrieve the detail for one model
+class ModelDetailHandler(webapp2.RequestHandler):
+  def dispatch(self):
+    if get_user_email():
+      # get the key from the request
+      rkey = self.request.get('key')
+      
+      # construct an ndb.Key object
+      key = ndb.Key(urlsafe=rkey)
+      if key:
+        # use the ndb.Key object's get() method to retrieve the Model associated with that particular key
+        m = key.get()
+        send_json(self, m.to_dict())
+      else:
+        send_error(self, 'Model not found.')
+    else:
+      send_error('Please log in.')
 
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
-    ('/login', LoginHandler),
-],  debug=True)
+  ('/models', ListModelsHandler),
+  ('/user', UserHandler),
+  ('/add', AddModelHandler),
+  ('/model', ModelDetailHandler),
+])
