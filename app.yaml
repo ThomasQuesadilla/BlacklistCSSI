@@ -1,12 +1,11 @@
 runtime: python27
 api_version: 1
-threadsafe: yes
+threadsafe: true
 
 handlers:
+- url: /
+  static_files: index.html
+  upload: index\.html
 
-- url: /.*
+- url: .*
   script: blocking.app
-  
-libraries:
-- name: jinja2
-  version: latest
