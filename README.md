@@ -5,5 +5,7 @@ Good luck, bros.
 
 
 
+https://drive.google.com/open?id=1h-LzA14PRpHzmBhS_IrX01wilYkag557
+This is the link to the zip file.
 
 Chrome extension takes keyword and redacts it from (most)webpages.
